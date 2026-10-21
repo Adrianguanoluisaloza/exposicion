@@ -664,7 +664,6 @@
 
     constructor() {
       super();
-      this.setAttribute('no-rail', '');
       this._root = this.attachShadow({ mode: 'open' });
       this._index = 0;
       this._slides = [];
@@ -795,6 +794,9 @@
     }
 
     _enableRail() {
+      this._railEnabled = false;
+      this._railVisible = false;
+      return; // Rail disabled: clean presentation without side slides
       // Idempotent — older host builds still post __omelette_rail_enabled.
       // no-rail guard keeps the observers/stylesheet walk off the cheap path
       // for presenter-popup thumbnail iframes (three per view — cur/prev/next).
@@ -1625,6 +1627,7 @@
     }
 
     _railWidth() {
+      return 0;
       // State-based, no offsetWidth: the first _fit() can run before the
       // rail has had layout on some load paths, and a 0 there paints the
       // slide full-width for one frame before the post-slotchange _fit()

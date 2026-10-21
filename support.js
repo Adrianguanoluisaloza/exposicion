@@ -79,7 +79,9 @@
     } catch {
     }
     const base = p.split("/").pop() || "Root";
-    return base.replace(/\.dc\.html$/, "").replace(/\.html?$/, "") || "Root";
+    const resolvedName = base.replace(/\.dc\.html$/, "").replace(/\.html?$/, "") || "Root";
+    if (resolvedName === "index" || resolvedName === "Root" || !resolvedName) return "La Ruta de las Decisiones";
+    return resolvedName;
   }
 
   // src/boot.ts
