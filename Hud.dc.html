@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="position:relative;width:1920px;height:130px;font-family:'Space Grotesk',sans-serif">
+  <div style="position:absolute;left:60px;top:30px;height:76px;box-sizing:border-box;display:flex;align-items:center;gap:16px;padding:0 30px 0 10px;border-radius:38px;background:#131D33;border:2px solid {{ color }}">
+    <div style="width:54px;height:54px;border-radius:50%;background:{{ color }};color:#0B1426;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700">{{ badge }}</div>
+    <div style="display:flex;flex-direction:column;line-height:1.08">
+      <span style="font-size:24px;font-weight:700;color:#F4EFE6">{{ line1 }}</span>
+      <span style="font-size:24px;color:#B9C2D9;font-family:Manrope,sans-serif">{{ line2 }}</span>
+    </div>
+  </div>
+  <div style="position:absolute;left:700px;top:66px;width:740px;height:4px;border-radius:2px;background:#26324F"></div>
+  <div style="position:absolute;left:700px;top:66px;width:{{ fillW }};height:4px;border-radius:2px;background:#F2B53A;transition:width .6s ease"></div>
+  <sc-for list="{{ nodes }}" as="nd" hint-placeholder-count="6">
+    <div style="position:absolute;left:{{ nd.left }};top:{{ nd.top }};width:{{ nd.s }};height:{{ nd.s }};box-sizing:border-box;border-radius:50%;background:{{ nd.bg }};border:{{ nd.border }};color:{{ nd.fg }};box-shadow:{{ nd.glow }};display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700">{{ nd.n }}</div>
+  </sc-for>
+  <div style="position:absolute;left:1508px;top:34px;width:352px;height:76px;box-sizing:border-box;padding:12px;display:flex;gap:8px;background:#131D33;border:2px solid #26324F;border-radius:16px" aria-label="Vitrina de trofeos">
+    <sc-for list="{{ cases }}" as="c" hint-placeholder-count="6">
+      <dc-import name="Trophy" n="{{ c.n }}" on="{{ c.on }}" size="{{ 48 }}" hint-size="48px,48px"></dc-import>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1920,&quot;height&quot;:130},&quot;p&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;min&quot;:0,&quot;max&quot;:7,&quot;tsType&quot;:&quot;number&quot;},&quot;done&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;min&quot;:0,&quot;max&quot;:6,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = +(this.props.p ?? 0), done = +(this.props.done ?? 0);
+    const C = ['#3FD0C9', '#5DB4F0', '#A68CF5', '#EE6FB5', '#F58A6B', '#B5E35A'];
+    const N = ['Adrián', 'Maldonado', 'Adonis', 'Dereck', 'Richar', 'Marlon Vega'];
+    const T = ['Estratega', 'Navegante', 'Detective', 'Cazador de oportunidades', 'Maestro del riesgo', 'Decisión final'];
+    const inStage = p >= 1 && p <= 6;
+    const nodes = C.map((col, i) => {
+      const n = i + 1, cur = n === p, isDone = n < p || p === 7;
+      const s = cur ? 56 : 42;
+      return {
+        n, s: s + 'px', left: (700 + i * 148 - s / 2) + 'px', top: (68 - s / 2) + 'px',
+        bg: isDone ? col : cur ? '#0B1426' : '#131D33',
+        border: cur ? `4px solid ${col}` : isDone ? `2px solid ${col}` : '2px solid #3A4766',
+        fg: isDone ? '#0B1426' : cur ? col : '#8C97B3',
+        glow: cur ? `0 0 0 8px ${col}33` : 'none',
+      };
+    });
+    return {
+      color: inStage ? C[p - 1] : '#F2B53A',
+      badge: inStage ? String(p) : '★',
+      line1: inStage ? `Expone: ${N[p - 1]}` : (p === 7 ? 'Cierre' : 'Apertura'),
+      line2: inStage ? T[p - 1] : 'Todo el equipo',
+      fillW: (p === 7 ? 740 : p >= 1 ? (p - 1) * 148 : 0) + 'px',
+      nodes,
+      cases: C.map((_, i) => ({ n: i + 1, on: i < done })),
+    };
+  }
+}
+</script>
+</body>
+</html>

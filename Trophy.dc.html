@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<svg viewBox="0 0 100 100" width="{{ size }}" height="{{ size }}" style="display:block;overflow:visible">
+  <polygon points="50,4 90,27 90,73 50,96 10,73 10,27" fill="{{ fill }}" stroke="{{ stroke }}" style="stroke-width:5;stroke-linejoin:round"></polygon>
+  <sc-if value="{{ on }}" hint-placeholder-val="{{ false }}"><polygon points="50,15 80,32 80,68 50,85 20,68 20,32" fill="none" stroke="{{ accent }}" style="stroke-width:2.5;stroke-linejoin:round"></polygon></sc-if>
+  <g fill="none" stroke="{{ glyph }}" style="stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round">
+    <sc-if value="{{ off }}" hint-placeholder-val="{{ true }}"><rect x="37" y="48" width="26" height="20" rx="3"></rect><path d="M42,48 v-6 a8,8 0 0 1 16,0 v6"></path></sc-if>
+    <sc-if value="{{ g1 }}" hint-placeholder-val="{{ false }}"><circle cx="50" cy="50" r="19"></circle><polygon points="50,35 56,50 50,65 44,50" fill="{{ glyph }}"></polygon></sc-if>
+    <sc-if value="{{ g2 }}" hint-placeholder-val="{{ false }}"><circle cx="50" cy="50" r="13"></circle><line x1="50" y1="28" x2="50" y2="72"></line><line x1="28" y1="50" x2="72" y2="50"></line><line x1="35" y1="35" x2="65" y2="65"></line><line x1="65" y1="35" x2="35" y2="65"></line></sc-if>
+    <sc-if value="{{ g3 }}" hint-placeholder-val="{{ false }}"><circle cx="46" cy="46" r="13"></circle><line x1="56" y1="56" x2="68" y2="68" style="stroke-width:7"></line></sc-if>
+    <sc-if value="{{ g4 }}" hint-placeholder-val="{{ false }}"><circle cx="50" cy="50" r="15"></circle><line x1="50" y1="27" x2="50" y2="40"></line><line x1="50" y1="60" x2="50" y2="73"></line><line x1="27" y1="50" x2="40" y2="50"></line><line x1="60" y1="50" x2="73" y2="50"></line><circle cx="50" cy="50" r="3" fill="{{ glyph }}"></circle></sc-if>
+    <sc-if value="{{ g5 }}" hint-placeholder-val="{{ false }}"><line x1="50" y1="30" x2="50" y2="70"></line><line x1="31" y1="37" x2="69" y2="37"></line><line x1="40" y1="70" x2="60" y2="70"></line><path d="M25,53 L31,37 L37,53 Z"></path><path d="M63,53 L69,37 L75,53 Z"></path></sc-if>
+    <sc-if value="{{ g6 }}" hint-placeholder-val="{{ false }}"><polygon points="50,30 55.5,44 70,44 58.5,53 63,68 50,59 37,68 41.5,53 30,44 44.5,44" fill="{{ glyph }}"></polygon></sc-if>
+  </g>
+</svg>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:200,&quot;height&quot;:200},&quot;n&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;min&quot;:1,&quot;max&quot;:6,&quot;tsType&quot;:&quot;number&quot;},&quot;on&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:160,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const n = +(this.props.n ?? 1);
+    const on = this.props.on === true || this.props.on === 'true';
+    const C = ['#3FD0C9', '#5DB4F0', '#A68CF5', '#EE6FB5', '#F58A6B', '#B5E35A'];
+    const g = on ? '#F2B53A' : '#6B7795';
+    return {
+      size: this.props.size ?? 48, on, off: !on,
+      fill: on ? 'rgba(242,181,58,0.16)' : '#131D33',
+      stroke: on ? '#F2B53A' : '#3A4766', accent: C[n - 1], glyph: g,
+      g1: on && n === 1, g2: on && n === 2, g3: on && n === 3,
+      g4: on && n === 4, g5: on && n === 5, g6: on && n === 6,
+    };
+  }
+}
+</script>
+</body>
+</html>
