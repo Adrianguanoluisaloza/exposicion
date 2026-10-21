@@ -736,6 +736,17 @@
       // next thumbnails — the rail has no business rendering inside those
       // (wrong scale, and it offsets the stage so the thumb shows a gutter).
       if (/[?&]_snthumb=/.test(location.search)) this.setAttribute('no-rail', '');
+      this.addEventListener('click', (e) => {
+        const sweep = e.target.closest && e.target.closest('[data-a="sweep"]');
+        if (sweep) {
+          sweep.setAttribute('data-dismissed', '');
+          sweep.style.animation = 'none';
+          sweep.style.transition = 'transform 0.25s ease-out';
+          sweep.style.transform = 'translateX(101%)';
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }, true);
       this._render();
       this._loadNotes();
       this._syncPrintPageRule();
@@ -1167,8 +1178,16 @@
 
       `;
 
-      overlay.querySelector('.prev').addEventListener('click', () => this._advance(-1, 'click'));
-      overlay.querySelector('.next').addEventListener('click', () => this._advance(1, 'click'));
+      overlay.querySelector('.prev').addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this._advance(-1, 'click');
+      });
+      overlay.querySelector('.next').addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this._advance(1, 'click');
+      });
       overlay.querySelector('.reset').addEventListener('click', () => this._go(0, 'click'));
 
       const fsBtn = overlay.querySelector('.fullscreen-btn');
@@ -1826,6 +1845,7 @@
     }
 
     _onKey(e) {
+      if (e.repeat) return;
       // Ignore when the user is typing. composedPath()[0], not e.target: a
       // window-level keydown retargets e.target to the shadow host, which
       // would miss an <input> or contenteditable inside a web component on
@@ -1912,6 +1932,15 @@
         return;
       }
       this._index = clamped;
+      if (this._slides[clamped]) {
+        const sweep = this._slides[clamped].querySelector('[data-a="sweep"]');
+        if (sweep) {
+          sweep.removeAttribute('data-dismissed');
+          sweep.style.animation = '';
+          sweep.style.transition = '';
+          sweep.style.transform = '';
+        }
+      }
       this._applyIndex({ showOverlay: true, broadcast: true, reason });
     }
 
@@ -1920,6 +1949,34 @@
      *  nothing further in that direction. */
     _advance(dir, reason) {
       if (!this._slides.length) return;
+      const now = Date.now();
+      if (this._lastAdvanceTime && (now - this._lastAdvanceTime) < 250) {
+        return;
+      }
+      this._lastAdvanceTime = now;
+
+      // If moving forward and the current slide has a sweep transition banner visible,
+      // dismiss the banner to reveal the current slide rather than skipping to the next slide!
+      if (dir > 0 && this._slides[this._index]) {
+        const sweep = this._slides[this._index].querySelector('[data-a="sweep"]');
+        if (sweep && !sweep.hasAttribute('data-dismissed')) {
+          let isCovered = true;
+          try {
+            const comp = window.getComputedStyle(sweep);
+            const m = new DOMMatrixReadOnly(comp.transform);
+            if (m.m41 > 400) isCovered = false;
+          } catch(err) {}
+          if (isCovered && sweep.style.display !== 'none') {
+            sweep.setAttribute('data-dismissed', '');
+            sweep.style.animation = 'none';
+            sweep.style.transition = 'transform 0.25s ease-out';
+            sweep.style.transform = 'translateX(101%)';
+            this._flashOverlay();
+            return;
+          }
+        }
+      }
+
       let i = this._index + dir;
       while (i >= 0 && i < this._slides.length && this._slides[i].hasAttribute('data-deck-skip')) {
         i += dir;
